@@ -2,6 +2,10 @@
 
 Purpose: Automated script to run a selected 3DMark Benchmark to ensure stability and maximize performance of GPUs/CPUs. 
 
+Libraries Used:
+- OpenCV-Python
+- pyautogui
+
 Next Steps:
 - Run selected benchmark
 - Grab system info and performance logs
