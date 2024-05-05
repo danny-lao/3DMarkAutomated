@@ -10,60 +10,51 @@ def is_process_running(process_name):
             return True
     return False
 
-# Define the name of the 3DMark process
-process_name = "3DMark.exe"
+def launch_3dmark_if_not_running():
+    """Launch 3DMark if it's not already running."""
+    process_name = "3DMark.exe"
+    if not is_process_running(process_name):
+        subprocess.Popen(r"C:\Program Files (x86)\Steam\steam.exe -applaunch 223850")
+        time.sleep(60)  # Wait for the application to fully start
 
-# Check if 3DMark is already running
-if is_process_running(process_name):
-    print("3DMark is already running.")
-else:
-    # Launch the application (Steam game) using subprocess
-    subprocess.call(r"C:\Program Files (x86)\Steam\steam.exe -applaunch 223850")
+def capture_screenshot_and_save(filename, image_name, confidence=0.7):
+    """Capture a screenshot of a specific image on the screen and save it."""
+    location = pyautogui.locateOnScreen(image_name, confidence=confidence)
+    if location is not None:
+        left, top, width, height = location
+        left, top, width, height = int(left), int(top), int(width), int(height)
+        sysInfo = pyautogui.screenshot(filename, region=(left, top, width, height))
+        print(f"Screenshot saved as '{filename}'.")
+    else:
+        print(f"Image '{image_name}' not found on the screen.")
 
-    # Wait for the application to fully load (adjust the sleep time as needed)
-    time.sleep(45)
+def click_image_if_found(image_name, confidence=0.7):
+    """Locate and click on an image on the screen if found."""
+    time.sleep(1)  # Small delay before locating
+    location = pyautogui.locateCenterOnScreen(image_name, confidence=confidence)
+    if location is not None:
+        x, y = location
+        pyautogui.moveTo(x, y, duration=1)
+        pyautogui.click()
+    else:
+        print(f"Image '{image_name}' not found on the screen.")
 
-# Continue with the rest of the automation
-# Set the pause duration for PyAutoGUI actions
-pyautogui.PAUSE = 2.5
+# Main automation logic
+def main():
+    # Launch 3DMark if it's not already running
+    launch_3dmark_if_not_running()
 
-# Locate the position of "systemInfo.png" on the screen
-# Adjust the confidence level as needed (higher confidence can improve accuracy)
-location = pyautogui.locateOnScreen("systemInfoTemplate.png", confidence=0.7)
+    # Set the pause duration for PyAutoGUI actions
+    pyautogui.PAUSE = 2.5
 
-if location is not None:
-    # Extract the coordinates of the matched region
-    left, top, width, height = location
+    # Capture system info screenshot
+    capture_screenshot_and_save('currentSysInfo.png', 'systemInfoTemplate.png')
 
-    # Ensure all coordinates are integers (convert if necessary)
-    left = int(left)
-    top = int(top)
-    width = int(width)
-    height = int(height)
+    # Perform automation tasks on 3DMark UI
+    click_image_if_found("stressTest.png")
+    click_image_if_found("testSelection.png")
+    click_image_if_found("timespyExtreme.png")
+    click_image_if_found("runTest.png")
 
-    # Capture the screenshot of the same region
-    sysInfo = pyautogui.screenshot('currentSysInfo.png', region=(left, top, width, height))
-    print(f"Screenshot saved as 'currentSysInfo.png'.")
-else:
-    print("Image 'systemInfoTemplate.png' not found on the screen.")
-
-# Find stressTest button on 3DMark screen
-time.sleep(1)
-x, y = pyautogui.locateCenterOnScreen("stressTest.png", confidence=0.7)
-pyautogui.moveTo(x, y, 1)
-pyautogui.click()
-
-time.sleep(1)
-x, y = pyautogui.locateCenterOnScreen("testSelection.png", confidence=0.7)
-pyautogui.moveTo(x, y, 1)
-pyautogui.click()
-
-time.sleep(1)
-x, y = pyautogui.locateCenterOnScreen("timespyExtreme.png", confidence=0.7)
-pyautogui.moveTo(x, y, 1)
-pyautogui.click()
-
-time.sleep(1)
-x, y = pyautogui.locateCenterOnScreen("runTest.png", confidence=0.7)
-pyautogui.moveTo(x, y, 1)
-pyautogui.click()
+if __name__ == "__main__":
+    main()
