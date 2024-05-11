@@ -5,8 +5,7 @@ Purpose: Automated script to run a selected 3DMark Benchmark to ensure stability
 The selected benchmark is 3DMark Timespy Extreme for now as proof of concept.
 
 Libraries/Modules Used:
-- OpenCV-Python
-- pyautogui
+- PyAutoGUI
 - psutil (for process management)
 - subprocess (for opening 3DMark)
 
@@ -18,4 +17,4 @@ Next Steps:
 Ver 0.1 - May 3rd, 2024
 - Launch 3DMark application
 - Locate & Run Stress Test/Benchmark
-- Collect System Info prior to benchmark run
+- Collect System Info prior to benchmark run via screenshot
