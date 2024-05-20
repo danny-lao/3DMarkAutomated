@@ -4,6 +4,11 @@ Purpose: Automated script to run a selected 3DMark Benchmark (Timespy Extreme) t
 
 The selected benchmark is 3DMark Timespy Extreme for now as proof of concept.
 
+Important:
+This script assumes you have 3DMark installed on your system within "C:\Program Files (x86)\Steam". If this is not the case, modify the subprocess.Popen on line 20 accordingly.
+The directory_path in line 79 is where my 3DMark is installed. Modify this line to locate your own 3DMark folder.
+
+
 Libraries/Modules/APIs Used:
 - PyAutoGUI
 - psutil (for process management)
