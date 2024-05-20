@@ -35,3 +35,8 @@ Ver 0.3 - May 15th, 2024
 - Basic XML parsing to print out CPU Name and GPU Name after the benchmark completes
 - Better checks for when the benchmark is complete and when waiting for the main 3DMark page to appear
 - Improved exception handling
+
+Ver 0.4 - May 20th, 2024
+- Fail/Pass Summary List (via XML parsing) (Originally tried pytesseract but failed to extract words properly from images)
+- More streamlined main function
+- Converted opening first zip function into opening the most recent zip file
