@@ -25,3 +25,8 @@ Ver 0.1 - May 3rd, 2024
 Ver 0.2 - May 11th, 2024
 - Save benchmark results as a .zip file
 - Separate functions for each step
+
+Ver 0.3 - May 15th, 2024
+- Basic XML parsing to print out CPU Name and GPU Name after the benchmark completes
+- Better checks for when the benchmark is complete and when waiting for the main 3DMark page to appear
+- Improved exception handling
