@@ -149,7 +149,7 @@ def main():
     # Set the pause duration for PyAutoGUI actions
     pyautogui.PAUSE = 2.5
     # Waiting for 3DMark Main Page to show up
-    '''while not is_image_on_screen("3dmarkMainPage.png"):
+    while not is_image_on_screen("3dmarkMainPage.png"):
         time.sleep(30)
     # Capture system info screenshot
     capture_screenshot_and_save('currentSysInfo.png', 'systemInfoTemplate.png')
@@ -178,7 +178,7 @@ def main():
     click_image_if_found("saveZip.png")
     print("Saving the test result as a zip")
     # Call the function to unzip the first zip file found in the directory
-    print("Unzipping and opening SI.xml")'''
+    print("Unzipping and opening SI.xml")
     # Call the function to extract FPS data from 'Arielle.xml' within the specified directory
     unzip_first_zip(directory_path)
 
