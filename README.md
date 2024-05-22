@@ -40,3 +40,7 @@ Ver 0.4 - May 20th, 2024
 - Fail/Pass Summary List (via XML parsing) (Originally tried pytesseract but failed to extract words properly from images)
 - More streamlined main function
 - Converted opening first zip function into opening the most recent zip file
+
+Ver 0.41 - May 22nd, 2024
+- Added functions for XML parsing (SI.xml and Arielle.xml)
+- Results now display individual FPS values per loop, Average FPS, and Margin Between Best and Worst Runs (in terms of FPS)
