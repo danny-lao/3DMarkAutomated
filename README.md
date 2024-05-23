@@ -41,6 +41,9 @@ Ver 0.4 - May 20th, 2024
 - More streamlined main function
 - Converted opening first zip function into opening the most recent zip file
 
-Ver 0.41 - May 22nd, 2024
+Ver 0.5 - May 22nd, 2024
 - Added functions for XML parsing (SI.xml and Arielle.xml)
 - Results now display individual FPS values per loop, Average FPS, and Margin Between Best and Worst Runs (in terms of FPS)
+- Provide System Info after a test (CPU, GPU, GPU Driver Version, Release Date, OS, Memory Config, Monitor, Motherboard Info)
+- Separate files for similar functions, cleaner main file
+- Revised navigation for finding benchmark in Stress Tests section (was a bit buggy because of the new Steel Nomad benchmark)
