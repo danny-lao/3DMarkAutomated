@@ -8,8 +8,8 @@ Important:
 This script assumes you have 3DMark installed on your system:
 
 Lines to modify (will be fixing this with the GUI update): 
-Line 14 (launcher.py) - Replace "C:\Program Files (x86)\Steam\steam.exe -applaunch 223850" with the directory where you installed Steam
-Line 12 (main.py) - Replace directory_path variable value 'C:\Users\Danny\Documents\3DMark\TestRuns' with your TestRuns folder that is located within the 3DMark directory on your system
+- Line 14 (launcher.py) - Replace "C:\Program Files (x86)\Steam\steam.exe -applaunch 223850" with the directory where you installed Steam
+- Line 12 (main.py) - Replace directory_path variable value 'C:\Users\Danny\Documents\3DMark\TestRuns' with your TestRuns folder that is located within the 3DMark directory on your system
 
 
 Libraries/Modules/APIs Used:
