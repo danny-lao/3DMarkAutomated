@@ -49,5 +49,6 @@ Ver 0.5 - May 22nd, 2024
 - Revised navigation for finding benchmark in Stress Tests section (was a bit buggy because of the new Steel Nomad benchmark)
 
 Ver 0.6 - June 5th, 2024
-- Added basic GUI for Directory navigation (need to add error detection)
+- Added basic GUI with Tkinter for Directory navigation (need to add error detection in future updates)
 - More XML parsing for elements such as Core clocks and Memory clock differences from default values
+- Use of JSON to store default directory values
