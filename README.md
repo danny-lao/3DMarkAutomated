@@ -7,11 +7,6 @@ The selected benchmark is 3DMark Timespy Extreme for now as proof of concept. Wi
 Important:
 This script assumes you have 3DMark installed on your system:
 
-Lines to modify (will be fixing this with the GUI update): 
-- Line 14 (launcher.py) - Replace "C:\Program Files (x86)\Steam\steam.exe -applaunch 223850" with the directory where you installed Steam
-- Line 12 (main.py) - Replace directory_path variable value 'C:\Users\Danny\Documents\3DMark\TestRuns' with your TestRuns folder that is located within the 3DMark directory on your system
-
-
 Libraries/Modules/APIs Used:
 - PyAutoGUI (locating elements on screen, typing, clicking, scrolling)
 - psutil (for process management)
@@ -19,6 +14,7 @@ Libraries/Modules/APIs Used:
 - datetime (grab time for recording benchmark)
 - zipfile (unzipping .zip file)
 - ElementTree XML API (extracting data from XML files)
+- tkinter
 
 Next Steps:
 - Grab system info and performance logs after a benchmark run concludes via XML extraction (average FPS, GPU name, CPU name, Monitor, average GPU clock speed, individual average FPS of each loop, etc...)
@@ -51,3 +47,7 @@ Ver 0.5 - May 22nd, 2024
 - Provide System Info after a test (CPU, GPU, GPU Driver Version, Release Date, OS, Memory Config, Monitor, Motherboard Info)
 - Separate files for similar functions, cleaner main file
 - Revised navigation for finding benchmark in Stress Tests section (was a bit buggy because of the new Steel Nomad benchmark)
+
+Ver 0.6 - June 5th, 2024
+- Added basic GUI for Directory navigation (need to add error detection)
+- More XML parsing for elements such as Core clocks and Memory clock differences from default values
