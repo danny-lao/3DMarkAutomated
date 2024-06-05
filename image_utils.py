@@ -10,6 +10,15 @@ def is_image_on_screen(image_name, confidence=0.5):
         return False
 
 
+def move_to_image(image_name, confidence=0.7):
+    try:
+        x, y = pyautogui.locateCenterOnScreen(image_name, confidence=confidence)
+        pyautogui.moveTo(x, y, duration=1)
+        return True
+    except pyautogui.ImageNotFoundException:
+        return False
+
+
 def capture_screenshot_and_save(filename, image_name, confidence=0.5):
     """Capture a screenshot of a specific image on the screen and save it."""
     try:
