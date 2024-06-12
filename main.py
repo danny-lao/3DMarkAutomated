@@ -37,7 +37,7 @@ default_directory_path, default_app_dir_path = load_default_paths()
 
 
 def main(directory_path, app_dir_path, save_default=False):
-    testing_done = False
+    error_occurred = False
     steam_directory_path = app_dir_path
     testrun_folder_path = directory_path
     current_time_test = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M")
@@ -60,11 +60,28 @@ def main(directory_path, app_dir_path, save_default=False):
     print("Found the test! Running now")
     click_image_if_found("runTest.png")
     print("Waiting for benchmark to finish in about 22 minutes")
-    time.sleep(1200)
 
-    while not is_image_on_screen("saveTest.png"):
-        time.sleep(30)
-    testing_done = True
+    # Run the benchmark and periodically check for errors
+    benchmark_duration = 1200  # 20 minutes
+    check_interval = 15  # check every 15 seconds
+    elapsed_time = 0
+
+    while elapsed_time < benchmark_duration:
+        time.sleep(check_interval)
+        elapsed_time += check_interval
+        if is_image_on_screen("errorBox.png"):
+            print("An Error has occurred on screen")
+            error_occurred = True
+            break  # Exit the loop if an error is detected
+
+    if not error_occurred:
+        while not is_image_on_screen("saveTest.png"):
+            if is_image_on_screen("errorBox.png"):
+                print("An Error has occurred on screen")
+                error_occurred = True
+                break  # Exit the loop if an error is detected
+            time.sleep(30)
+
     for image, text in [("saveTest.png", ""), (".3dmarkresult.png", ""), ("allFiles.png", ""),
                         ("fileNameBox.png", f'TimeSpyExtreme_{current_time_test}_.zip'), ("saveZip.png", ""),
                         ("saveTest.png", ""), ("fileNameBox.png", f'TimeSpyExtreme_{current_time_test}'),

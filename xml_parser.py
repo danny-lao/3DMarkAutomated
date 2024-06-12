@@ -108,41 +108,47 @@ def parse_arielle_xml(arielle_xml_path):
     ari_tree = ET.parse(arielle_xml_path)
     ari_root = ari_tree.getroot()
     benchmark_test_name = ari_root.find('./sets/set/name')
-    test_results = {result.find('name').text: float(result.find('value').text) for result in ari_root.findall('./results/result')}
+    test_results = {result.find('name').text: float(result.find('value').text) for result in ari_root.findall('./results/result') if result.find('value') is not None}
+    run_errors = ari_root.find('./sets/set/workloads/workload/results/result/status')
+
     if 'DandiaTestPassXST' in test_results:
         print("\nTest Passed!\nPass Summary List:" if test_results['DandiaTestPassXST'] == 1.0 else "\nTest Failed!\nFail Summary List:")
     else:
         print("DandiaTestPassXST not found. Cannot determine overall test result.")
-    print("Test Case Name:", benchmark_test_name.text if benchmark_test_name is not None else "Not found")
-    if 'DandiaLoopDoneXST' in test_results:
-        print(
-            f"Loops Completed (DandiaLoopDoneXST): {test_results['DandiaLoopDoneXST']} (Pass)" if test_results['DandiaLoopDoneXST'] >= 20 else f"Loops Completed (DandiaLoopDoneXST): {test_results['DandiaLoopDoneXST']} (Fail)")
+    print("Test Case Name:", get_text(benchmark_test_name))
+
+    if run_errors is not None:
+        error_message = run_errors.text.strip() if run_errors.text else "Unknown error"
+        print("\nErrors detected during the test run:", error_message)
     else:
-        print("Loops Completed (DandiaLoopDoneXST) not found.")
+        if 'DandiaLoopDoneXST' in test_results:
+            print(
+                f"Loops Completed (DandiaLoopDoneXST): {test_results['DandiaLoopDoneXST']} (Pass)" if test_results['DandiaLoopDoneXST'] >= 20 else f"Loops Completed (DandiaLoopDoneXST): {test_results['DandiaLoopDoneXST']} (Fail)")
+        else:
+            print("Loops Completed (DandiaLoopDoneXST) not found.")
 
-    if 'DandiaFpsStabilityXST' in test_results:
-        print(
-            f"Frame Rate Stability (DandiaFpsStabilityXST): {test_results['DandiaFpsStabilityXST'] / 10}% (Pass)" if test_results['DandiaFpsStabilityXST'] >= 970.0 else f"Frame Rate Stability (DandiaFpsStabilityXST): {test_results['DandiaFpsStabilityXST'] / 10}% (Fail. Must be >= 97.0%)")
-    else:
-        print("Frame Rate Stability (DandiaFpsStabilityXST) not found.")
+        if 'DandiaFpsStabilityXST' in test_results:
+            print(
+                f"Frame Rate Stability (DandiaFpsStabilityXST): {test_results['DandiaFpsStabilityXST'] / 10}% (Pass)" if test_results['DandiaFpsStabilityXST'] >= 970.0 else f"Frame Rate Stability (DandiaFpsStabilityXST): {test_results['DandiaFpsStabilityXST'] / 10}% (Fail. Must be >= 97.0%)")
+        else:
+            print("Frame Rate Stability (DandiaFpsStabilityXST) not found.")
 
-    fps_values = [(idx + 1, round(float(result.find('./primary_result').text), 2))
-                  for idx, result in enumerate(ari_root.findall('.//result'))
-                  if result.find('./primary_result') is not None and result.find('./primary_result').get('unit') == 'fps']
+        fps_values = [(idx + 1, round(float(result.find('./primary_result').text), 2))
+                      for idx, result in enumerate(ari_root.findall('.//result'))
+                      if result.find('./primary_result') is not None and result.find('./primary_result').get('unit') == 'fps']
 
-    print("\nIndividual FPS Values:")
-    for idx, fps in fps_values:
-        print(f"Loop {idx}: {fps} fps")
+        print("\nIndividual FPS Values:")
+        for idx, fps in fps_values:
+            print(f"Loop {idx}: {fps} fps")
 
-    if fps_values:
-        average_fps = round(sum(fps for idx, fps in fps_values) / len(fps_values), 2)
-        print(f"\nAverage FPS: {average_fps} fps")
+        if fps_values:
+            average_fps = round(sum(fps for idx, fps in fps_values) / len(fps_values), 2)
+            print(f"\nAverage FPS: {average_fps} fps")
 
-        best_fps_idx, best_fps = max(fps_values, key=lambda x: x[1])
-        worst_fps_idx, worst_fps = min(fps_values, key=lambda x: x[1])
+            best_fps_idx, best_fps = max(fps_values, key=lambda x: x[1])
+            worst_fps_idx, worst_fps = min(fps_values, key=lambda x: x[1])
 
-        print(f"Best Individual Loop: Loop {best_fps_idx} with {best_fps} fps")
-        print(f"Worst Individual Loop: Loop {worst_fps_idx} with {worst_fps} fps")
-        margin = round(((best_fps / worst_fps) * 100 - 100), 2)
-        print("Margin Between Best and Worst Runs:", f"{margin} %\n")
-
+            print(f"Best Individual Loop: Loop {best_fps_idx} with {best_fps} fps")
+            print(f"Worst Individual Loop: Loop {worst_fps_idx} with {worst_fps} fps")
+            margin = round(((best_fps / worst_fps) * 100 - 100), 2)
+            print("Margin Between Best and Worst Runs:", f"{margin} %\n")

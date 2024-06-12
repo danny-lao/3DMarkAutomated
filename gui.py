@@ -1,4 +1,5 @@
-# gui.py
+# gui.py (updated)
+
 import tkinter as tk
 from tkinter import filedialog
 from threading import Thread
@@ -52,6 +53,8 @@ class Gui:
 
         # Label to indicate "Running benchmark"
         self.running_label = tk.Label(self.window, text="Running benchmark...")
+
+        # Label to indicate "Saving Test Results"
         self.saving_label = tk.Label(self.window, text="Saving Test Results")
 
     def browse_folder(self):
@@ -73,18 +76,14 @@ class Gui:
         if self.save_default.get():
             app_dir_path += " -applaunch 223850"
 
-        # Hide the directory labels and entries
-        self.directory_label.grid_forget()
-        self.directory_entry.grid_forget()
-        self.directory_button.grid_forget()
-        self.app_label.grid_forget()
-        self.app_entry.grid_forget()
-        self.app_button.grid_forget()
-        self.save_default_checkbox.grid_forget()
-
-        # Hide the window and show the "Running benchmark" message
+        # Hide the main window
         self.window.withdraw()
-        self.running_label.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
+
+        # Create a new window for "Running benchmark" message
+        self.running_window = tk.Toplevel(self.window)
+        self.running_window.title("Running Benchmark")
+        self.running_label = tk.Label(self.running_window, text="Running benchmark...")
+        self.running_label.pack(padx=20, pady=20)
 
         # Run the benchmark in a separate thread to avoid blocking the GUI
         benchmark_thread = Thread(target=self.run_benchmark, args=(directory_path, app_dir_path))
@@ -100,14 +99,24 @@ class Gui:
             app_dir_path = app_dir_path.replace(" -applaunch 223850", "")
             self.save_default_paths(directory_path, app_dir_path)
 
-        # Show the window again once the benchmark is finished
+        # Close the "Running benchmark" window
+        self.running_window.destroy()
+
+        # Create a new window for "Saving Test Results" message
+        self.saving_window = tk.Toplevel(self.window)
+        self.saving_window.title("Saving Test Results")
+        self.saving_label = tk.Label(self.saving_window, text="Saving Test Results...")
+        self.saving_label.pack(padx=20, pady=20)
+
+        # Close the saving window after a delay (optional)
+        self.window.after(3000, self.close_saving_window)
+
+    def close_saving_window(self):
+        # Close the "Saving Test Results" window
+        self.saving_window.destroy()
+
+        # Show the main window again
         self.window.deiconify()
-
-        # Switch the window message to say "Saving Test Results"
-        self.saving_label.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
-
-        # Stop the GUI after saving the test results
-        self.window.quit()
 
     def run(self):
         # Run the main event loop
