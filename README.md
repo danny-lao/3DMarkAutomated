@@ -56,3 +56,4 @@ Ver 0.61 - June 12th, 2024
 - Revised GUI windows for displaying when the benchmark is running/when its saving the test
 - Added error handling if a test finishes prematurely
 - Revised XML parser to find error code
+- Moved images for PyAutoGUI to one singular folder (3dmark_images) for more cleanliness + easier future expansion for upcoming test cases
