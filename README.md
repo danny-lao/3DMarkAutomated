@@ -14,13 +14,12 @@ Libraries/Modules/APIs Used:
 - datetime (grab time for recording benchmark)
 - zipfile (unzipping .zip file)
 - ElementTree XML API (extracting data from XML files)
-- tkinter
+- tkinter (GUI elements, browsing directory)
 
 Next Steps:
-- Grab system info and performance logs after a benchmark run concludes via XML extraction (average FPS, GPU name, CPU name, Monitor, average GPU clock speed, individual average FPS of each loop, etc...)
 - Create GUI/clear report for the user
-- Hold onto previous logs to compare different runs
-- Add additional test cases in
+- Hold onto previous logs and add button to allow users to compare different runs
+- Add additional test cases in (ie. Speedway, Port Royal, Firestrike, etc...)
 
 Ver 0.1 - May 3rd, 2024
 - Launch 3DMark application
@@ -52,3 +51,8 @@ Ver 0.6 - June 5th, 2024
 - Added basic GUI with Tkinter for Directory navigation (need to add error detection in future updates)
 - More XML parsing for elements such as Core clocks and Memory clock differences from default values
 - Use of JSON to store default directory values
+
+Ver 0.61 - June 12th, 2024
+- Revised GUI windows for displaying when the benchmark is running/when its saving the test
+- Added error handling if a test finishes prematurely
+- Revised XML parser to find error code
