@@ -1,4 +1,3 @@
-# main.py
 import datetime
 import os
 import pyautogui
@@ -12,6 +11,7 @@ from file_utils import unzip_most_recent_zip
 from xml_parser import parse_si_xml, parse_arielle_xml
 
 DEFAULT_CONFIG_FILE = "default_paths.json"
+IMAGE_FOLDER = "3dmark_images"  # Define the image folder path
 
 
 def save_default_paths(directory_path, app_dir_path):
@@ -44,21 +44,21 @@ def main(directory_path, app_dir_path, save_default=False):
     launch_3dmark_if_not_running(steam_directory_path)
     pyautogui.PAUSE = 2.5
 
-    while not is_image_on_screen("3dmarkMainPage.png"):
+    while not is_image_on_screen(os.path.join(IMAGE_FOLDER, "3dmarkMainPage.png")):
         time.sleep(30)
 
-    capture_screenshot_and_save('currentSysInfo.png', 'systemInfoTemplate.png')
+    capture_screenshot_and_save('currentSysInfo.png', os.path.join(IMAGE_FOLDER, 'systemInfoTemplate.png'))
 
-    click_image_if_found("stressTest.png")
-    move_to_image("testSelection.png")
+    click_image_if_found(os.path.join(IMAGE_FOLDER, "stressTest.png"))
+    move_to_image(os.path.join(IMAGE_FOLDER, "testSelection.png"))
     pyautogui.move(180, 0, 2)
     pyautogui.click()
     pyautogui.move(0, 50)
-    while not click_image_if_found("timespyExtreme.png"):
+    while not click_image_if_found(os.path.join(IMAGE_FOLDER, "timespyExtreme.png")):
         pyautogui.press('down', presses=3)
         print("Scrolling to find benchmark")
     print("Found the test! Running now")
-    click_image_if_found("runTest.png")
+    click_image_if_found(os.path.join(IMAGE_FOLDER, "runTest.png"))
     print("Waiting for benchmark to finish in about 22 minutes")
 
     # Run the benchmark and periodically check for errors
@@ -69,30 +69,34 @@ def main(directory_path, app_dir_path, save_default=False):
     while elapsed_time < benchmark_duration:
         time.sleep(check_interval)
         elapsed_time += check_interval
-        if is_image_on_screen("errorBox.png"):
+        if is_image_on_screen(os.path.join(IMAGE_FOLDER, "errorBox.png")):
             print("An Error has occurred on screen")
             error_occurred = True
             break  # Exit the loop if an error is detected
 
     if not error_occurred:
-        while not is_image_on_screen("saveTest.png"):
-            if is_image_on_screen("errorBox.png"):
+        while not is_image_on_screen(os.path.join(IMAGE_FOLDER, "saveTest.png")):
+            if is_image_on_screen(os.path.join(IMAGE_FOLDER, "errorBox.png")):
                 print("An Error has occurred on screen")
                 error_occurred = True
                 break  # Exit the loop if an error is detected
             time.sleep(30)
 
-    for image, text in [("saveTest.png", ""), (".3dmarkresult.png", ""), ("allFiles.png", ""),
-                        ("fileNameBox.png", f'TimeSpyExtreme_{current_time_test}_.zip'), ("saveZip.png", ""),
-                        ("saveTest.png", ""), ("fileNameBox.png", f'TimeSpyExtreme_{current_time_test}'),
-                        ("saveZip.png", "")]:
+    for image, text in [(os.path.join(IMAGE_FOLDER, "saveTest.png"), ""),
+                        (os.path.join(IMAGE_FOLDER, ".3dmarkresult.png"), ""),
+                        (os.path.join(IMAGE_FOLDER, "allFiles.png"), ""),
+                        (os.path.join(IMAGE_FOLDER, "fileNameBox.png"), f'TimeSpyExtreme_{current_time_test}_.zip'),
+                        (os.path.join(IMAGE_FOLDER, "saveZip.png"), ""),
+                        (os.path.join(IMAGE_FOLDER, "saveTest.png"), ""),
+                        (os.path.join(IMAGE_FOLDER, "fileNameBox.png"), f'TimeSpyExtreme_{current_time_test}'),
+                        (os.path.join(IMAGE_FOLDER, "saveZip.png"), "")]:
         click_image_if_found(image)
         if text:
             pyautogui.press('backspace', presses=6)
             pyautogui.write(text)
 
     print("Saving the test result as a zip")
-    capture_screenshot_and_save('currentTestResult.png', 'testResults.png')
+    capture_screenshot_and_save('currentTestResult.png', os.path.join(IMAGE_FOLDER, 'testResults.png'))
 
     extract_directory = unzip_most_recent_zip(testrun_folder_path)
     if extract_directory:

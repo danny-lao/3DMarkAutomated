@@ -19,7 +19,7 @@ def move_to_image(image_name, confidence=0.7):
         return False
 
 
-def capture_screenshot_and_save(filename, image_name, confidence=0.7):
+def capture_screenshot_and_save(filename, image_name, confidence=0.6):
     """Capture a screenshot of a specific image on the screen and save it."""
     try:
         location = pyautogui.locateOnScreen(image_name, confidence=confidence)
