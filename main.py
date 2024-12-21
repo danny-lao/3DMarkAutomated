@@ -3,9 +3,11 @@ import os
 import pyautogui
 import time
 import json
+import subprocess
+import psutil
+
 # Import functions from your modules
 from gui import Gui
-from launcher import launch_3dmark_if_not_running
 from image_utils import is_image_on_screen, capture_screenshot_and_save, click_image_if_found, move_to_image
 from file_utils import unzip_most_recent_zip
 from xml_parser import parse_si_xml, parse_arielle_xml
@@ -34,6 +36,26 @@ def load_default_paths():
 
 # Load default paths if available
 default_directory_path, default_app_dir_path = load_default_paths()
+
+
+def launch_3dmark_if_not_running(steam_directory_path):
+    # Check if 3DMark is already running
+    if not is_3dmark_running():
+        # Launch 3DMark through Steam
+        if os.path.exists(steam_directory_path):
+            subprocess.Popen([steam_directory_path, "-applaunch", "223850"])
+        else:
+            print("Steam executable not found at the specified path.")
+            print(steam_directory_path)
+    else:
+        print("3DMark is already running.")
+
+def is_3dmark_running():
+    # Check if 3DMark is running by looking for its process
+    for proc in psutil.process_iter(['pid', 'name']):
+        if proc.info['name'] == "3DMark.exe":
+            return True
+    return False
 
 
 def main(directory_path, app_dir_path, save_default=False):
