@@ -41,3 +41,14 @@ def click_image_if_found(image_name, confidence=0.7):
         return True
     except pyautogui.ImageNotFoundException:
         return False
+    
+def click_image_if_found_run_test (image_name, confidence = 0.9):
+    """Used for stress tests since they are much more specific to click on"""
+    try:
+        x, y = pyautogui.locateCenterOnScreen(image_name, confidence=confidence)
+        pyautogui.moveTo(x, y, duration=1)
+        pyautogui.click()
+        print("Found test")
+        return True
+    except pyautogui.ImageNotFoundException:
+        return False

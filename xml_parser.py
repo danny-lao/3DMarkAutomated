@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-
+import re
 def get_text(element, default="Not found"):
     return element.text if element is not None else default
 
@@ -45,11 +45,11 @@ def parse_si_xml(si_xml_path):
     }
 
     # Initialize variables
-    populated_slots_count = 0
-    frequencies = []
     gpu_mem_int = int(data["gpu_memory"].text.strip())
-
-    print("System Info:\n")
+    frequencies, populated_slots = parse_memory_info(data["memory_slots"])
+    memory_total = int(data["memory_quantity"].text) // 1024 if data["memory_quantity"] is not None else "Not found"
+    
+    print("\nSystem Info:\n")
     print("Monitor (one used for the benchmark):", get_text(data["monitor_name"]))
     print("Monitor Resolution:", get_text(data["monitor_res_width"]), "X", get_text(data["monitor_res_height"]))
     print("\nCPU Name:", get_text(data["cpu_name"]))
@@ -66,27 +66,8 @@ def parse_si_xml(si_xml_path):
     print("Bus Interface:", get_text(data["bus_interface_name"]))
     print("\nOS:", get_text(data["os_ver"]))
 
-    for slot in data["memory_slots"]:
-        capacity_element = slot.find('Capacity')
-        if capacity_element is not None:
-            capacity_value = float(capacity_element.find('DoubleValue').text)
-            if capacity_value > 0:
-                populated_slots_count += 1
-                frequency_element = slot.find('Frequency')
-                if frequency_element is not None:
-                    frequency_value = float(frequency_element.find('DoubleValue').text) * 1000
-                    frequencies.append(frequency_value)
+    print(f"Memory: {memory_total/populated_slots} x {populated_slots} GB (Frequencies: {frequencies})")
 
-    if data["memory_quantity"] is not None and data["memory_quantity"].text is not None:
-        try:
-            memory_int = int(data["memory_quantity"].text.strip())
-            print("Memory:", memory_int // 1024, "GB (", memory_int // 1024 // populated_slots_count, "GB X",
-                  populated_slots_count, ")")
-        except ValueError:
-            print("Memory: Could not convert to integer")
-    else:
-        print("Memory: Not found")
-    print("Memory Frequency:", frequencies)
 
     print("\nMotherboard Info: \n")
     print("Manufacturer:", get_text(data["motherboard_manufacturer"]))
@@ -104,51 +85,74 @@ def parse_si_xml(si_xml_path):
     print(calculate_difference(data["gpu_clock"], data["gpu_clock_default"], "GPU Clock"))
     print(calculate_difference(data["gpu_mem_clock"], data["gpu_mem_clock_default"], "GPU Memory Clock"))
 
+def parse_memory_info(memory_slots):
+    frequencies = [
+        float(slot.find('Frequency/DoubleValue').text) * 1000
+        for slot in memory_slots if slot.find('Capacity/DoubleValue') is not None
+    ]
+    populated_slots = len(frequencies)
+    return frequencies, populated_slots
+
+def extract_fps_values(ari_root):
+    fps_values = [
+        (idx + 1, round(float(result.find('./primary_result').text), 2))
+        for idx, result in enumerate(ari_root.findall('.//result'))
+        if result.find('./primary_result') is not None and result.find('./primary_result').get('unit') == 'fps'
+    ]
+    return fps_values
+def check_benchmark_results_flexible(ari_root):
+    # Define flexible patterns for the key result names
+    test_pass_pattern = re.compile(r"DandiaTestPass.*")
+    loops_completed_pattern = re.compile(r"DandiaLoopDone.*")
+    fps_stability_pattern = re.compile(r"DandiaFpsStability.*")
+
+    # Find matching elements
+    test_pass = next((value for value in ari_root.findall(".//result") 
+                      if value.find("name") is not None and test_pass_pattern.match(value.find("name").text)), None)
+    loops_completed = next((value for value in ari_root.findall(".//result") 
+                            if value.find("name") is not None and loops_completed_pattern.match(value.find("name").text)), None)
+    fps_stability = next((value for value in ari_root.findall(".//result") 
+                          if value.find("name") is not None and fps_stability_pattern.match(value.find("name").text)), None)
+
+    # Extract values if matches are found
+    if test_pass and loops_completed and fps_stability:
+        test_pass_value = float(test_pass.find("value").text)
+        loops_completed_value = float(loops_completed.find("value").text)
+        fps_stability_value = float(fps_stability.find("value").text)
+
+        # Validate the results
+        if (
+                test_pass_value == 1.0 and
+                loops_completed_value == 20.0 and
+                fps_stability_value > 97.0
+            ):
+                print("Pass")
+                return True
+        elif fps_stability_value < 97.0:
+                print("Fail due to <97% FPS stability.")
+                return False
+        else:
+            print("Fail due to incomplete test pass.")
+            return False
+    else:
+        print("Error: Missing required result values in the XML.")
+        return False
+    
 def parse_arielle_xml(arielle_xml_path):
-    ari_tree = ET.parse(arielle_xml_path)
-    ari_root = ari_tree.getroot()
-    benchmark_test_name = ari_root.find('./sets/set/name')
-    test_results = {result.find('name').text: float(result.find('value').text) for result in ari_root.findall('./results/result') if result.find('value') is not None}
-    run_errors = ari_root.find('./sets/set/workloads/workload/results/result/status')
+    root = ET.parse(arielle_xml_path).getroot()
+    fps_values = extract_fps_values(root)
+    result = check_benchmark_results_flexible(root)
+    print("\nBenchmark Result:", result)
+    print("\nPerformance Metrics:")
+    if fps_values:
+        average_fps = round(sum(fps for _, fps in fps_values) / len(fps_values), 2)
+        best_fps_idx, best_fps = max(fps_values, key=lambda x: x[1])
+        worst_fps_idx, worst_fps = min(fps_values, key=lambda x: x[1])
+        margin = round(((best_fps / worst_fps) * 100 - 100), 2)
 
-    if 'DandiaTestPassXST' in test_results:
-        print("\nTest Passed!\nPass Summary List:" if test_results['DandiaTestPassXST'] == 1.0 else "\nTest Failed!\nFail Summary List:")
+        print(f"Average FPS: {average_fps} fps")
+        print(f"Best FPS: Loop {best_fps_idx} with {best_fps} fps")
+        print(f"Worst FPS: Loop {worst_fps_idx} with {worst_fps} fps")
+        print(f"Performance Margin: {margin}%")
     else:
-        print("DandiaTestPassXST not found. Cannot determine overall test result.")
-    print("Test Case Name:", get_text(benchmark_test_name))
-
-    if run_errors is not None:
-        error_message = run_errors.text.strip() if run_errors.text else "Unknown error"
-        print("\nErrors detected during the test run:", error_message)
-    else:
-        if 'DandiaLoopDoneXST' in test_results:
-            print(
-                f"Loops Completed (DandiaLoopDoneXST): {test_results['DandiaLoopDoneXST']} (Pass)" if test_results['DandiaLoopDoneXST'] >= 20 else f"Loops Completed (DandiaLoopDoneXST): {test_results['DandiaLoopDoneXST']} (Fail)")
-        else:
-            print("Loops Completed (DandiaLoopDoneXST) not found.")
-
-        if 'DandiaFpsStabilityXST' in test_results:
-            print(
-                f"Frame Rate Stability (DandiaFpsStabilityXST): {test_results['DandiaFpsStabilityXST'] / 10}% (Pass)" if test_results['DandiaFpsStabilityXST'] >= 970.0 else f"Frame Rate Stability (DandiaFpsStabilityXST): {test_results['DandiaFpsStabilityXST'] / 10}% (Fail. Must be >= 97.0%)")
-        else:
-            print("Frame Rate Stability (DandiaFpsStabilityXST) not found.")
-
-        fps_values = [(idx + 1, round(float(result.find('./primary_result').text), 2))
-                      for idx, result in enumerate(ari_root.findall('.//result'))
-                      if result.find('./primary_result') is not None and result.find('./primary_result').get('unit') == 'fps']
-
-        print("\nIndividual FPS Values:")
-        for idx, fps in fps_values:
-            print(f"Loop {idx}: {fps} fps")
-
-        if fps_values:
-            average_fps = round(sum(fps for idx, fps in fps_values) / len(fps_values), 2)
-            print(f"\nAverage FPS: {average_fps} fps")
-
-            best_fps_idx, best_fps = max(fps_values, key=lambda x: x[1])
-            worst_fps_idx, worst_fps = min(fps_values, key=lambda x: x[1])
-
-            print(f"Best Individual Loop: Loop {best_fps_idx} with {best_fps} fps")
-            print(f"Worst Individual Loop: Loop {worst_fps_idx} with {worst_fps} fps")
-            margin = round(((best_fps / worst_fps) * 100 - 100), 2)
-            print("Margin Between Best and Worst Runs:", f"{margin} %\n")
+        print("No FPS data found.")
