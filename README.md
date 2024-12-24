@@ -1,11 +1,11 @@
 3DMarkAutomated
 
-Purpose: Automated script to run a selected 3DMark Benchmark (Timespy Extreme) to ensure system stability and maximize performance of GPUs/CPUs overclocks/undervolts. 
+Purpose: Automated script to run a selected 3DMark Benchmark to ensure system stability and maximize performance of GPU/CPU overclocks. 
 
-The selected benchmark is 3DMark Timespy Extreme for now as proof of concept. Will be adding other benchmarks to the list in the future. GUI will be one of the next big steps to complete in the coming weeks
+GUI will be one of the next big steps to complete in the coming weeks
 
 Important:
-This script assumes you have 3DMark installed on your system:
+This script assumes you have 3DMark installed on your system as well as Steam:
 
 Libraries/Modules/APIs Used:
 - PyAutoGUI (locating elements on screen, typing, clicking, scrolling)
@@ -15,11 +15,11 @@ Libraries/Modules/APIs Used:
 - zipfile (unzipping .zip file)
 - ElementTree XML API (extracting data from XML files)
 - tkinter (GUI elements, browsing directory)
+- re (for dynamically identifying elements such as some XML names)
 
 Next Steps:
-- Create GUI/clear report for the user
-- Hold onto previous logs and add button to allow users to compare different runs
-- Add additional test cases in (ie. Speedway, Port Royal, Firestrike, etc...)
+- Create a better GUI for starting tests and for viewing results
+- Hold onto previous logs and add button to allow users to compare similar runs
 
 Ver 0.1 - May 3rd, 2024
 - Launch 3DMark application
@@ -57,3 +57,10 @@ Ver 0.61 - June 12th, 2024
 - Added error handling if a test finishes prematurely
 - Revised XML parser to find error code
 - Moved images for PyAutoGUI to one singular folder (3dmark_images) for more cleanliness + easier future expansion for upcoming test cases
+
+Ver 0.7 - Dec 22nd, 2024
+- Revised code to be modular, especially main.py
+- Added functionality for additional test cases (ie. Speedway, Port Royal, Firestrike, etc...)
+- Removed launcher, moved functionality to main.py
+- New folder for the new benchmarks (still uses PyAutoGUI to locate them)
+- Added autofind feature for 3DMark and Steam directories
