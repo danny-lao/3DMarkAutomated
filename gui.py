@@ -40,22 +40,21 @@ class Gui:
         self.app_button = tk.Button(self.window, text="Browse", command=self.browse_app)
         self.app_button.grid(row=1, column=2, padx=5, pady=5)
 
-        # Auto Find Paths Button
-        self.auto_find_button = tk.Button(self.window, text="Auto Find Paths", command=self.auto_find_paths)
-        self.auto_find_button.grid(row=2, column=1, padx=5, pady=5)
-
         # Dropdown for Benchmark Selection
         self.benchmark_label = tk.Label(self.window, text="Select Benchmark:")
-        self.benchmark_label.grid(row=3, column=0, padx=5, pady=5)
+        self.benchmark_label.grid(row=2, column=0, padx=5, pady=5)
         self.benchmark_dropdown = tk.OptionMenu(
             self.window, self.selected_benchmark, 
             "Timespy", "Timespy Extreme", "Firestrike", "Firestrike Extreme", "Port Royal", "Speed Way", "Wild Life", "Wild Life Extreme", "Night Raid", "Steel Nomad", "Steel Nomad Light"
         )
-        self.benchmark_dropdown.grid(row=3, column=1, padx=5, pady=5)
+        self.benchmark_dropdown.grid(row=2, column=1, padx=5, pady=5)
+        # Auto Find Paths Button
+        self.auto_find_button = tk.Button(self.window, text="Auto Find Paths", command=self.auto_find_paths)
+        self.auto_find_button.grid(row=3, column=0, padx=3, pady=5)
 
         # Start Benchmark Button
         self.start_button = tk.Button(self.window, text="Start Benchmark", command=self.start_benchmark)
-        self.start_button.grid(row=4, column=1, padx=5, pady=5)
+        self.start_button.grid(row=3, column=1, padx=3, pady=5)
 
     def browse_folder(self):
         folder_path = filedialog.askdirectory()
@@ -108,6 +107,9 @@ class Gui:
         app_dir_path = self.app_entry.get()
         selected_benchmark = self.selected_benchmark.get()
 
+        if not directory_path or not app_dir_path:  # Ensure all fields are filled outproject_directory || 
+            tk.messagebox.showerror("Error", "Please fill out your directory for 3DMark and Steam. You can also try using the Auto Find feature.")
+            return
         # Ensure a benchmark is selected
         if selected_benchmark == "Select a Benchmark":
             tk.messagebox.showerror("Error", "Please select a benchmark before starting.")
